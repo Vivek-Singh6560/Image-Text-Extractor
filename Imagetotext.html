@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Text Extractor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(45deg, #0a0a2e, #1a1a4a);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 2rem;
+            perspective: 1000px;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(12px);
+            padding: 2rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 40px rgba(0, 150, 255, 0.2);
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, rgba(0, 150, 255, 0.1), transparent);
+            transform: rotate(45deg);
+            pointer-events: none;
+        }
+
+        h1 {
+            background: linear-gradient(45deg, #00ffff, #0099ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .upload-section {
+            border: 2px solid rgba(0, 150, 255, 0.3);
+            border-radius: 15px;
+            padding: 2rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            position: relative;
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        .upload-section:hover {
+            border-color: #00ffff;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.2);
+            transform: translateY(-5px);
+        }
+
+        #imageUpload {
+            display: none;
+        }
+
+        .upload-label {
+            cursor: pointer;
+            color: #00ffff;
+            font-weight: 500;
+            font-size: 1.2rem;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: inline-block;
+        }
+
+        .upload-label:hover {
+            background: rgba(0, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        .preview-section {
+            display: none;
+            margin-bottom: 2rem;
+            position: relative;
+            border-radius: 15px;
+            overflow: hidden;
+            transform: translateZ(20px);
+            box-shadow: 0 0 30px rgba(0, 150, 255, 0.2);
+        }
+
+        #imagePreview {
+            width: 100%;
+            display: block;
+        }
+
+        .result-section {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 1.5rem;
+            border-radius: 15px;
+            position: relative;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(0, 150, 255, 0.2);
+        }
+
+        .loader {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ffff;
+            font-size: 1.2rem;
+        }
+
+        button {
+            background: linear-gradient(45deg, #0099ff, #00ffff);
+            color: white;
+            border: none;
+            padding: 1rem 2rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 20px rgba(0, 150, 255, 0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.4);
+        }
+
+        #result {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            color: #ffffff;
+            line-height: 1.6;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 1.5rem;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- The HTML structure remains exactly the same -->
+    <div class="container">
+        <h1>Screenshot Text Extractor 📸➡️📝</h1>
+        
+        <div class="upload-section">
+            <input type="file" id="imageUpload" accept="image/*" />
+            <label for="imageUpload" class="upload-label">
+                Drag & drop or click to upload screenshot
+            </label>
+        </div>
+
+        <div class="preview-section">
+            <img id="imagePreview" alt="Preview" />
+        </div>
+
+        <div class="result-section">
+            <div class="loader">⏳ Processing...</div>
+            <div id="result"></div>
+            <button id="copyBtn" style="display: none;">Copy Text</button>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/tesseract.js@v2.1.0/dist/tesseract.min.js"></script>
+    <script>
+        // JavaScript remains exactly the same
+        const worker = Tesseract.createWorker();
+        let isWorkerReady = false;
+
+        (async function initializeOCR() {
+            try {
+                await worker.load();
+                await worker.loadLanguage('eng');
+                await worker.initialize('eng');
+                isWorkerReady = true;
+            } catch (error) {
+                alert('Failed to initialize OCR engine: ' + error.message);
+            }
+        })();
+
+        // DOM Elements
+        const imageUpload = document.getElementById('imageUpload');
+        const imagePreview = document.getElementById('imagePreview');
+        const previewSection = document.querySelector('.preview-section');
+        const resultSection = document.getElementById('result');
+        const copyBtn = document.getElementById('copyBtn');
+        const loader = document.querySelector('.loader');
+
+        // File Upload Handler
+        imageUpload.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            previewSection.style.display = 'block';
+            imagePreview.src = URL.createObjectURL(file);
+            await processImage(file);
+        });
+
+        // OCR Processing Function
+        async function processImage(imageBlob) {
+            if (!isWorkerReady) return alert('OCR engine still initializing');
+            
+            loader.style.display = 'block';
+            copyBtn.style.display = 'none';
+            resultSection.textContent = '';
+            
+            try {
+                const { data: { text } } = await worker.recognize(imageBlob);
+                resultSection.textContent = text;
+                copyBtn.style.display = 'block';
+            } catch (error) {
+                alert('OCR Error: ' + error.message);
+            } finally {
+                loader.style.display = 'none';
+            }
+        }
+
+        // Robust Copy Functionality with Fallback
+        copyBtn.addEventListener('click', async () => {
+            const text = resultSection.textContent;
+            if (!text.trim()) {
+                alert('No text to copy!');
+                return;
+            }
+
+            try {
+                await navigator.clipboard.writeText(text);
+                alert('✅ Text copied to clipboard!');
+            } catch (error) {
+                try {
+                    const textarea = document.createElement('textarea');
+                    textarea.value = text;
+                    textarea.style.position = 'fixed';
+                    document.body.appendChild(textarea);
+                    textarea.select();
+                    
+                    const success = document.execCommand('copy');
+                    document.body.removeChild(textarea);
+                    
+                    if (!success) throw new Error('Legacy copy failed');
+                    alert('✅ Text copied using fallback method!');
+                } catch (fallbackError) {
+                    alert('❌ Copy failed. Please select and copy manually.');
+                }
+            }
+        });
+
+        // Drag and Drop Handler
+        document.addEventListener('dragover', e => e.preventDefault());
+        document.addEventListener('drop', async e => {
+            e.preventDefault();
+            const file = e.dataTransfer.files[0];
+            if (file && file.type.startsWith('image/')) {
+                previewSection.style.display = 'block';
+                imagePreview.src = URL.createObjectURL(file);
+                await processImage(file);
+            }
+        });
+    </script>
+</body>
+</html>
