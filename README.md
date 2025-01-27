@@ -4,7 +4,7 @@ Extract text from screenshots instantly with this sleek web-based OCR tool! 🔍
 
 A modern web application that converts images to text using optical character recognition (OCR). Built with Tesseract.js and wrapped in a beautiful futuristic UI with smooth animations and gradient effects.
 
-Live Demo ←
+Live Demo ←https://vivek-singh6560.github.io/Image-Text-Extractor/
 
 Features 🌟
 🖼️ Drag & drop image upload support
